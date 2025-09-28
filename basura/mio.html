@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Codirix POS — Sistema completo</title>
+
+  <!-- Bootstrap 5 (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --sidebar-width:240px;
+      --accent-1:#0d6efd;
+      --accent-2:#12b0d7;
+      --card-radius:12px;
+      --bg:#f4f7fb;
+    }
+    body{ font-family: "Segoe UI", Tahoma, sans-serif; background:var(--bg); margin:0;}
+    .sidebar{
+      width:var(--sidebar-width);
+      height:100vh;
+      position:fixed;
+      left:0; top:0;
+      background:linear-gradient(180deg,var(--accent-1),var(--accent-2));
+      color:#fff; padding:20px;
+      box-shadow: 3px 0 18px rgba(10,10,10,0.08);
+    }
+    .sidebar h2{font-size:18px;margin-bottom:18px}
+    .sidebar .nav-link{ color:rgba(255,255,255,0.95); border-radius:8px; margin-bottom:6px}
+    .sidebar .nav-link.active, .sidebar .nav-link:hover{ background: rgba(255,255,255,0.12); color:#fff; }
+    .content{ margin-left:var(--sidebar-width); padding:20px; min-height:100vh; }
+    .card{ border-radius:var(--card-radius); box-shadow:0 6px 20px rgba(11,20,40,0.04); }
+    .small-muted{ color:#6c757d; font-size:0.9rem; }
+    .table-fixed { table-layout: fixed; word-wrap: break-word; }
+    .badge-role { padding:6px 8px; border-radius:8px; font-size:0.85rem; }
+    .permissions-table th, .permissions-table td{ vertical-align: middle; text-align:center; }
+    .section { display:none; }
+    .section.active{ display:block; animation: fadeIn 220ms ease; }
+    @keyframes fadeIn{ from{opacity:0; transform: translateY(6px);} to{opacity:1; transform:none;} }
+    .form-label-small { font-size:0.85rem; color:#333; }
+    .muted-box { background:#fff; padding:12px; border-radius:10px; border:1px solid #eee; }
+    .danger-txt { color:#b0212d; font-weight:600; }
+    .success-txt { color:#0b8f4a; font-weight:600; }
+    .card-preview{ background:#fff; padding:12px; border-radius:10px; border:1px dashed #e4e7ea; height:160px; }
+    .role-pill { display:inline-block; padding:6px 10px; border-radius:999px; margin-right:6px; background:#eef6ff; color:#04519a; font-weight:600; }
+    .footer-note{ color:#8892a6; font-size:0.85rem; margin-top:18px; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar d-flex flex-column">
+    <div>
+      <h2>Codirix POS</h2>
+      <div class="small-muted">Inventario • Ventas • Facturación</div>
+    </div>
+
+    <nav class="nav flex-column mt-4">
+      <a class="nav-link active" href="#" data-target="dashboard">Dashboard</a>
+      <a class="nav-link" href="#" data-target="pos">Punto de Venta</a>
+      <a class="nav-link" href="#" data-target="productos">Productos</a>
+      <a class="nav-link" href="#" data-target="inventario">Inventario</a>
+      <a class="nav-link" href="#" data-target="proveedores">Proveedores</a>
+      <a class="nav-link" href="#" data-target="ventas">Ventas / Facturación</a>
+      <a class="nav-link" href="#" data-target="reportes">Reportes</a>
+      <a class="nav-link" href="#" data-target="caja">Caja & Finanzas</a>
+      <a class="nav-link" href="#" data-target="usuarios">Usuarios & Roles</a>
+      <a class="nav-link" href="#" data-target="contabilidad">Contabilidad</a>
+      <a class="nav-link" href="#" data-target="seguridad">Seguridad & Backups</a>
+      <a class="nav-link" href="#" data-target="config">Configuración</a>
+      <a class="nav-link" href="#" data-target="extras">Extras / Multi-sucursal</a>
+    </nav>
+
+    <div class="mt-auto">
+      <div class="footer-note">Usuario: <strong>admin</strong> · Rol: <span class="role-pill">Administrador</span></div>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <main class="content">
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h3>Dashboard</h3>
+          <div class="small-muted">Resumen rápido — métricas y accesos</div>
+        </div>
+        <div>
+          <button class="btn btn-outline-secondary btn-sm">Exportar CSV</button>
+          <button class="btn btn-outline-primary btn-sm">Generar reporte rápido</button>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-3">
+          <div class="card p-3">
+            <h6>Total ventas (hoy)</h6>
+            <div class="display-6">$0.00</div>
+            <div class="small-muted">Transacciones: 0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3">
+            <h6>Productos de bajo stock</h6>
+            <div class="display-6">3</div>
+            <div class="small-muted">Revisar alertas</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3">
+            <h6>Clientes nuevos (30d)</h6>
+            <div class="display-6">4</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card p-3">
+            <h6>Ventas por vendedor (hoy)</h6>
+            <div class="display-6">Vendedor A: $0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-3">
+        <div class="col-lg-8">
+          <div class="card p-3">
+            <h6>Actividad reciente (Bitácora)</h6>
+            <div class="small-muted mb-2">Quién hizo qué — útil para auditoría</div>
+            <table class="table table-sm">
+              <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead>
+              <tbody>
+                <tr><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card p-3">
+            <h6>Alertas</h6>
+            <ul class="list-unstyled">
+              <li><span class="badge bg-warning text-dark">Stock</span> 2 productos con stock bajo</li>
+              <li><span class="badge bg-danger">Vencimiento</span> 1 lote próximo a caducar</li>
+              <li><span class="badge bg-info">Backups</span> Último backup: hace 3 días</li>
+            </ul>
+            <div class="mt-3">
+              <button class="btn btn-sm btn-outline-danger">Generar backup ahora</button>
+              <button class="btn btn-sm btn-outline-primary">Configurar alertas</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PUNTO DE VENTA -->
+    <section id="pos" class="section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Punto de Venta</h3>
+        <div class="small-muted">Caja activa: <strong>CAJA-001</strong></div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-8">
+          <div class="card p-3 mb-3">
+            <div class="d-flex gap-2">
+              <input class="form-control" id="pos-search" placeholder="Buscar producto por nombre o código (Enter)">
+              <button class="btn btn-primary">Agregar</button>
+              <select class="form-select" style="max-width:120px;">
+                <option>1</option><option>2</option><option>3</option>
+              </select>
+            </div>
+
+            <table class="table table-bordered table-sm table-fixed mt-3">
+              <thead class="table-light"><tr>
+                <th style="width:5%">#</th><th style="width:20%">Código</th><th>Producto</th><th style="width:10%">Cant.</th>
+                <th style="width:12%">P. Unit</th><th style="width:10%">IVA%</th><th style="width:12%">Subtotal</th><th style="width:8%">Acción</th>
+              </tr></thead>
+              <tbody>
+                <tr><td colspan="8" class="text-center small-muted">No hay items</td></tr>
+              </tbody>
+            </table>
+
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-outline-secondary btn-sm">Guardar borrador</button>
+              <button class="btn btn-outline-danger btn-sm">Anular factura</button>
+              <button class="btn btn-success btn-sm">Completar venta</button>
+            </div>
+          </div>
+
+          <div class="card p-3">
+            <h6>Créditos / Cuentas por cobrar</h6>
+            <div class="small-muted mb-2">Registrar venta a crédito y controlar vencimientos</div>
+            <form class="row g-2">
+              <div class="col-md-6"><input class="form-control" placeholder="Cliente (buscar)"></div>
+              <div class="col-md-3"><input class="form-control" type="date" placeholder="Fecha vencimiento"></div>
+              <div class="col-md-3"><button class="btn btn-primary w-100">Registrar a crédito</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card p-3 mb-3">
+            <h6>Resumen de venta</h6>
+            <div class="small-muted mb-2">Subtotal / IVA / Descuentos</div>
+
+            <div class="row gx-2 gy-2">
+              <div class="col-12"><label class="form-label-small">Subtotal</label><div class="muted-box">$0.00</div></div>
+              <div class="col-6"><label class="form-label-small">IVA</label><div class="muted-box">$0.00</div></div>
+              <div class="col-6"><label class="form-label-small">Descuento (%)</label><input class="form-control form-control-sm" type="number" value="0"></div>
+              <div class="col-12"><label class="form-label-small">Descuento ($)</label><input class="form-control form-control-sm" type="number" value="0"></div>
+              <div class="col-12"><label class="form-label-small">Total</label><div class="muted-box h5">$0.00</div></div>
+
+              <div class="col-12"><label class="form-label-small">Método de pago</label>
+                <select class="form-select form-select-sm">
+                  <option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Crédito</option>
+                </select>
+              </div>
+
+              <div class="col-12"><label class="form-label-small">Referencia / Banco</label><input class="form-control form-control-sm" placeholder="Número de referencia / banco"></div>
+              <div class="col-12"><label class="form-label-small">Recibido (efectivo)</label><input class="form-control form-control-sm" type="number"></div>
+              <div class="col-12"><label class="form-label-small">Vuelto</label><div class="muted-box">$0.00</div></div>
+              <div class="col-12"><label class="form-label-small">Observaciones</label><textarea class="form-control form-control-sm"></textarea></div>
+
+              <div class="col-12 d-grid">
+                <button class="btn btn-primary">Emitir factura y guardar</button>
+                <button class="btn btn-outline-secondary mt-2">Imprimir ticket térmico</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-3">
+            <h6>Integración POS</h6>
+            <div class="small-muted">Soporte para impresoras térmicas (USB/Red) y dispositivos de pago</div>
+            <div class="mt-2">
+              <button class="btn btn-sm btn-outline-primary">Configurar impresora</button>
+              <button class="btn btn-sm btn-outline-success">Prueba impresión</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section id="productos" class="section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Productos</h3>
+        <div class="small-muted">Gestión completa: SKU, categoría, marca, lote, caducidad, stock mínimo</div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <form id="form-product" class="row g-2">
+          <div class="col-md-3"><label class="form-label-small">SKU / Código</label><input class="form-control" name="sku"></div>
+          <div class="col-md-4"><label class="form-label-small">Nombre</label><input class="form-control" name="name"></div>
+          <div class="col-md-2"><label class="form-label-small">Marca</label><input class="form-control" name="brand"></div>
+          <div class="col-md-3"><label class="form-label-small">Categoría</label><input class="form-control" name="category"></div>
+
+          <div class="col-md-2"><label class="form-label-small">Precio compra</label><input class="form-control" name="cost" type="number" step="0.01"></div>
+          <div class="col-md-2"><label class="form-label-small">Precio venta</label><input class="form-control" name="price" type="number" step="0.01"></div>
+          <div class="col-md-2"><label class="form-label-small">Stock inicial</label><input class="form-control" name="stock" type="number"></div>
+          <div class="col-md-2"><label class="form-label-small">Stock mínimo</label><input class="form-control" name="stock_min" type="number"></div>
+          <div class="col-md-2"><label class="form-label-small">IVA (%)</label><input class="form-control" name="iva" type="number" step="0.01"></div>
+
+          <div class="col-12">
+            <label class="form-label-small">Descripción</label>
+            <textarea class="form-control" name="description" rows="2"></textarea>
+          </div>
+
+          <div class="col-12 d-flex gap-2">
+            <button class="btn btn-success">Guardar producto</button>
+            <button class="btn btn-outline-secondary">Nuevo lote / caducidad</button>
+            <button class="btn btn-outline-primary">Importar CSV</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card p-3">
+        <h6>Lista de productos</h6>
+        <table class="table table-sm table-hover permissions-table">
+          <thead class="table-light"><tr>
+            <th>SKU</th><th>Producto</th><th>Marca</th><th>Cat.</th><th>Stock</th><th>Stock min</th><th>Últ. costo</th><th>Acciones</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>—</td><td class="small-muted">Sin registros</td><td>—</td><td>—</td><td>0</td><td>0</td><td>$0.00</td><td><button class="btn btn-sm btn-outline-secondary">Editar</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row g-3 mt-3">
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h6>Gestión de lotes y caducidad</h6>
+            <form class="row g-2">
+              <div class="col-md-6"><input class="form-control" placeholder="SKU o producto"></div>
+              <div class="col-md-3"><input class="form-control" type="text" placeholder="Lote"></div>
+              <div class="col-md-3"><input class="form-control" type="date" placeholder="Fecha caducidad"></div>
+              <div class="col-md-12"><textarea class="form-control" placeholder="Notas sobre lote / condición"></textarea></div>
+              <div class="col-12 d-flex gap-2"><button class="btn btn-primary">Registrar lote</button><button class="btn btn-outline-danger">Marcar como pérdido/merma</button></div>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h6>Registro de gestión (merma / devolución / robo)</h6>
+            <form class="row g-2">
+              <div class="col-md-6"><input class="form-control" placeholder="Producto"></div>
+              <div class="col-md-3"><input class="form-control" type="number" placeholder="Cantidad"></div>
+              <div class="col-md-3">
+                <select class="form-select">
+                  <option>Merma</option><option>Devolución</option><option>Robo</option>
+                </select>
+              </div>
+              <div class="col-12"><textarea class="form-control" placeholder="Motivo / detalles"></textarea></div>
+              <div class="col-12"><button class="btn btn-danger">Registrar movimiento</button></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INVENTARIO -->
+    <section id="inventario" class="section">
+      <h3>Inventario</h3>
+      <div class="card p-3 mb-3">
+        <div class="d-flex justify-content-between mb-2">
+          <div>
+            <label class="form-label-small">Filtro</label>
+            <div class="d-flex gap-2">
+              <input class="form-control form-control-sm" placeholder="Buscar producto/SKU">
+              <select class="form-select form-select-sm" style="max-width:180px;">
+                <option>Todos los almacenes</option><option>Sucursal A</option><option>Sucursal B</option>
+              </select>
+              <button class="btn btn-sm btn-outline-primary">Aplicar</button>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-sm btn-outline-success">Exportar Excel</button>
+            <button class="btn btn-sm btn-outline-secondary">Exportar CSV</button>
+          </div>
+        </div>
+
+        <table class="table table-sm">
+          <thead class="table-light"><tr><th>SKU</th><th>Producto</th><th>Stock</th><th>Stock min</th><th>Lotes</th><th>Acciones</th></tr></thead>
+          <tbody><tr><td>—</td><td class="small-muted">Sin registros</td><td>0</td><td>0</td><td>—</td><td><button class="btn btn-sm btn-outline-secondary">Ver</button></td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="card p-3">
+        <h6>Alertas de stock</h6>
+        <p class="small-muted">Configura umbrales para recibir notificaciones cuando el stock esté bajo o agotado.</p>
+        <div class="row g-2">
+          <div class="col-md-4"><input class="form-control" type="number" placeholder="Umbral global de stock"></div>
+          <div class="col-md-4"><select class="form-select"><option>Notificar por correo</option><option>Notificar por WhatsApp</option></select></div>
+          <div class="col-md-4"><button class="btn btn-primary">Guardar alertas</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROVEEDORES -->
+    <section id="proveedores" class="section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Proveedores</h3>
+        <div class="small-muted">Órdenes de compra, historial y pagos</div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <form class="row g-2">
+          <div class="col-md-4"><input class="form-control" placeholder="Nombre proveedor"></div>
+          <div class="col-md-2"><input class="form-control" placeholder="RUC/Cédula"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Teléfono"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Correo"></div>
+          <div class="col-md-12"><input class="form-control" placeholder="Dirección"></div>
+          <div class="col-12 d-flex gap-2"><button class="btn btn-success">Guardar proveedor</button><button class="btn btn-outline-secondary">Importar proveedores</button></div>
+        </form>
+      </div>
+
+      <div class="card p-3">
+        <h6>Órdenes de compra</h6>
+        <form class="row g-2">
+          <div class="col-md-4"><input class="form-control" placeholder="Proveedor"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="N° orden / factura"></div>
+          <div class="col-md-2"><input class="form-control" type="date" ></div>
+          <div class="col-md-3"><button class="btn btn-primary w-100">Crear orden</button></div>
+          <div class="col-12 mt-2"><textarea class="form-control" placeholder="Detalle de compra (productos y cantidades)"></textarea></div>
+        </form>
+
+        <hr>
+        <table class="table table-sm">
+          <thead class="table-light"><tr><th>Orden</th><th>Proveedor</th><th>Total</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <tbody><tr><td>—</td><td>—</td><td>$0</td><td>—</td><td>N/A</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- VENTAS / FACTURACIÓN -->
+    <section id="ventas" class="section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Ventas y Facturación</h3>
+        <div class="small-muted">Facturas, notas de venta, anulación y reportes</div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <form class="row g-2">
+          <div class="col-md-3"><input class="form-control" placeholder="N° factura"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Cliente"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Vendedor"></div>
+          <div class="col-md-3"><input class="form-control" type="date"></div>
+          <div class="col-md-12"><textarea class="form-control" placeholder="Notas"></textarea></div>
+          <div class="col-12 d-flex gap-2"><button class="btn btn-primary">Generar factura</button><button class="btn btn-outline-danger">Anular factura</button></div>
+        </form>
+      </div>
+
+      <div class="card p-3">
+        <h6>Soporte pagos</h6>
+        <div class="row g-2">
+          <div class="col-md-3"><select class="form-select"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Crédito</option></select></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Referencia / banco"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Número autorización"></div>
+          <div class="col-md-3"><input class="form-control" type="number" placeholder="Monto recibido"></div>
+        </div>
+        <div class="mt-3"><small class="small-muted">Nota: integración con pasarelas externas o POS cards se configura en "Configuración".</small></div>
+      </div>
+
+      <div class="card p-3 mt-3">
+        <h6>Historial de facturas</h6>
+        <table class="table table-sm">
+          <thead class="table-light"><tr><th>Factura</th><th>Cliente</th><th>Total</th><th>Vendedor</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <tbody><tr><td>—</td><td>—</td><td>$0</td><td>—</td><td>—</td><td>—</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- REPORTES -->
+    <section id="reportes" class="section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Reportes</h3>
+        <div class="small-muted">Exportables: Excel / PDF / CSV</div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <form class="row g-2 align-items-end">
+          <div class="col-md-3"><label class="form-label-small">Tipo</label><select class="form-select"><option>Ventas</option><option>Inventario</option><option>Financieros</option><option>Vendedor</option></select></div>
+          <div class="col-md-3"><label class="form-label-small">Inicio</label><input class="form-control" type="date"></div>
+          <div class="col-md-3"><label class="form-label-small">Fin</label><input class="form-control" type="date"></div>
+          <div class="col-md-3"><button class="btn btn-primary w-100">Generar reporte</button></div>
+        </form>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h6>Ventas por día/semana/mes</h6>
+            <div class="card-preview">[Gráfico / tabla]</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h6>Productos más vendidos</h6>
+            <div class="card-preview">[Tabla con top productos]</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-3 mt-3">
+        <h6>Reportes financieros</h6>
+        <p class="small-muted">Ingresos, gastos, rentabilidad (ventas - costo = ganancia), impuestos</p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary">Exportar Excel</button>
+          <button class="btn btn-outline-secondary">Exportar PDF</button>
+          <button class="btn btn-outline-secondary">Exportar CSV</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAJA -->
+    <section id="caja" class="section">
+      <h3>Caja & Finanzas</h3>
+
+      <div class="card p-3 mb-3">
+        <h6>Apertura / Cierre de caja</h6>
+        <form class="row g-2">
+          <div class="col-md-3"><input class="form-control" placeholder="Responsable"></div>
+          <div class="col-md-2"><input class="form-control" type="date"></div>
+          <div class="col-md-2"><input class="form-control" type="time"></div>
+          <div class="col-md-2"><input class="form-control" type="number" placeholder="Saldo inicial"></div>
+          <div class="col-md-3 d-flex gap-2"><button class="btn btn-success">Abrir caja</button><button class="btn btn-outline-danger">Cerrar caja</button></div>
+        </form>
+      </div>
+
+      <div class="card p-3">
+        <h6>Ingresos y egresos</h6>
+        <form class="row g-2">
+          <div class="col-md-4"><input class="form-control" placeholder="Detalle"></div>
+          <div class="col-md-3"><select class="form-select"><option>Ingreso</option><option>Egreso</option></select></div>
+          <div class="col-md-3"><input class="form-control" type="number" placeholder="Monto"></div>
+          <div class="col-md-2"><button class="btn btn-primary w-100">Registrar</button></div>
+        </form>
+
+        <hr>
+        <h6>Conciliación</h6>
+        <p class="small-muted">Comparar caja real con ventas registradas.</p>
+        <div class="d-flex gap-2"><button class="btn btn-outline-primary">Conciliar ahora</button><button class="btn btn-outline-secondary">Descargar informe</button></div>
+      </div>
+    </section>
+
+    <!-- USUARIOS Y ROLES -->
+    <section id="usuarios" class="section">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Gestión de Usuarios y Roles</h3>
+        <div class="small-muted">Roles: Administrador, Vendedor, Bodeguero, Contador</div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h6>Crear / Editar usuario</h6>
+        <form class="row g-2">
+          <div class="col-md-3"><input class="form-control" placeholder="Nombre completo"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Usuario (login)"></div>
+          <div class="col-md-3"><input class="form-control" type="email" placeholder="Correo"></div>
+          <div class="col-md-3"><select class="form-select"><option>Administrador</option><option>Vendedor</option><option>Bodeguero</option><option>Contador</option></select></div>
+          <div class="col-md-3"><input class="form-control" type="password" placeholder="Contraseña"></div>
+          <div class="col-md-9"><input class="form-control" placeholder="Observaciones / permisos adicionales"></div>
+          <div class="col-12"><button class="btn btn-success">Guardar usuario</button></div>
+        </form>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h6>Matriz de permisos (resumen)</h6>
+        <div class="small-muted mb-2">Permisos por rol (visualización rápida)</div>
+
+        <table class="table table-sm permissions-table">
+          <thead class="table-light"><tr>
+            <th>Permisos</th><th>Administrador</th><th>Vendedor</th><th>Bodeguero</th><th>Contador</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Gestión usuarios</td><td>✔</td><td></td><td></td><td></td></tr>
+            <tr><td>Configurar sistema</td><td>✔</td><td></td><td></td><td></td></tr>
+            <tr><td>Crear/editar productos</td><td>✔</td><td></td><td>✔</td><td></td></tr>
+            <tr><td>Actualizar stock</td><td>✔</td><td></td><td>✔</td><td></td></tr>
+            <tr><td>Crear/editar clientes</td><td>✔</td><td>✔</td><td></td><td></td></tr>
+            <tr><td>Crear/editar proveedores</td><td>✔</td><td></td><td>✔</td><td></td></tr>
+            <tr><td>Crear factura/venta</td><td>✔</td><td>✔</td><td></td><td></td></tr>
+            <tr><td>Anular factura/venta</td><td>✔</td><td></td><td></td><td>✔</td></tr>
+            <tr><td>Aplicar descuentos</td><td>✔</td><td>Limitado</td><td></td><td></td></tr>
+            <tr><td>Reporte de ventas</td><td>✔</td><td>Solo propias</td><td></td><td>✔</td></tr>
+            <tr><td>Reporte inventario</td><td>✔</td><td></td><td>✔</td><td>✔</td></tr>
+            <tr><td>Reportes financieros</td><td>✔</td><td></td><td></td><td>✔</td></tr>
+            <tr><td>Historial compras personales</td><td>✔</td><td>✔</td><td></td><td>✔</td></tr>
+            <tr><td>Exportar datos</td><td>✔</td><td></td><td>✔</td><td>✔</td></tr>
+            <tr><td>Backups / restauración</td><td>✔</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card p-3">
+        <h6>Bitácora / Registro de actividades</h6>
+        <p class="small-muted">Registro: quién creó/editar/ eliminó facturas, movimientos de stock, inicios de sesión, etc.</p>
+        <table class="table table-sm">
+          <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>IP</th><th>Detalles</th></tr></thead>
+          <tbody><tr><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CONTABILIDAD / CONTADOR -->
+    <section id="contabilidad" class="section">
+      <h3>Panel Contador</h3>
+      <div class="card p-3 mb-3">
+        <h6>Reportes financieros</h6>
+        <ul>
+          <li>Ver ventas, gastos y utilidades</li>
+          <li>Ver movimientos de caja</li>
+          <li>Generar reportes de impuestos (IVA / retenciones)</li>
+          <li>Exportar a Excel / PDF</li>
+        </ul>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary">Generar reporte impuestos (IVA)</button>
+          <button class="btn btn-outline-secondary">Exportar Excel</button>
+          <button class="btn btn-outline-secondary">Exportar PDF</button>
+        </div>
+      </div>
+
+      <div class="card p-3">
+        <h6>Movimientos de caja</h6>
+        <table class="table table-sm">
+          <thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th></tr></thead>
+          <tbody><tr><td>—</td><td>—</td><td>—</td><td>$0</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SEGURIDAD Y BACKUPS -->
+    <section id="seguridad" class="section">
+      <h3>Seguridad & Backups</h3>
+
+      <div class="card p-3 mb-3">
+        <h6>Backups automáticos</h6>
+        <div class="row g-2">
+          <div class="col-md-4"><label class="form-label-small">Frecuencia</label><select class="form-select"><option>Diario</option><option>Semanal</option><option>Mensual</option></select></div>
+          <div class="col-md-4"><label class="form-label-small">Retención</label><input class="form-control" type="number" value="30"></div>
+          <div class="col-md-4 d-flex align-items-end"><button class="btn btn-primary w-100">Configurar backup</button></div>
+        </div>
+        <div class="mt-2 small-muted">Almacenamiento: local / FTP / S3 (configurable)</div>
+      </div>
+
+      <div class="card p-3">
+        <h6>Control de sesión & seguridad</h6>
+        <ul>
+          <li>Evitar múltiples inicios simultáneos (opción configurable)</li>
+          <li>Bloqueo por intentos fallidos</li>
+          <li>Políticas de contraseñas</li>
+          <li>Logs de errores y auditoría</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CONFIGURACIÓN -->
+    <section id="config" class="section">
+      <h3>Configuración / Personalización</h3>
+
+      <div class="card p-3 mb-3">
+        <h6>Datos de la empresa</h6>
+        <form class="row g-2">
+          <div class="col-md-4"><input class="form-control" placeholder="Nombre empresa"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="RUC"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Teléfono"></div>
+          <div class="col-md-2"><input class="form-control" type="file"></div>
+          <div class="col-12"><input class="form-control" placeholder="Dirección"></div>
+          <div class="col-12 d-flex gap-2"><button class="btn btn-success">Guardar</button><button class="btn btn-outline-secondary">Restaurar valores por defecto</button></div>
+        </form>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h6>Impuestos y retenciones</h6>
+        <form class="row g-2">
+          <div class="col-md-3"><input class="form-control" placeholder="IVA (%)"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Retención (%)"></div>
+          <div class="col-md-3"><select class="form-select"><option>Incluye IVA en precio</option><option>No incluir</option></select></div>
+          <div class="col-md-3 d-flex align-items-end"><button class="btn btn-primary w-100">Guardar impuestos</button></div>
+        </form>
+      </div>
+
+      <div class="card p-3">
+        <h6>Tema y apariencia</h6>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary">Modo claro</button>
+          <button class="btn btn-outline-secondary">Modo oscuro</button>
+          <button class="btn btn-outline-secondary">Colores personalizados</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXTRAS / MULTI-SUCURSAL -->
+    <section id="extras" class="section">
+      <h3>Extras y Módulos Avanzados</h3>
+
+      <div class="card p-3 mb-3">
+        <h6>Integraciones</h6>
+        <ul>
+          <li>Integración SRI (Factura electrónica)</li>
+          <li>Integración con WhatsApp para notificaciones</li>
+          <li>Soporte códigos de barras y lector</li>
+        </ul>
+        <div class="d-flex gap-2"><button class="btn btn-primary">Configurar SRI</button><button class="btn btn-outline-primary">Configurar WhatsApp</button></div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h6>Múltiples sucursales</h6>
+        <p class="small-muted">Gestión de inventario por sucursal, transferencias entre almacenes y reportes por ubicación.</p>
+        <form class="row g-2">
+          <div class="col-md-4"><input class="form-control" placeholder="Agregar sucursal"></div>
+          <div class="col-md-4"><input class="form-control" placeholder="Dirección sucursal"></div>
+          <div class="col-md-4 d-flex align-items-end"><button class="btn btn-success w-100">Crear sucursal</button></div>
+        </form>
+      </div>
+
+      <div class="card p-3">
+        <h6>Notificaciones</h6>
+        <p class="small-muted">Notificar por correo/WhatsApp sobre stock bajo, facturas emitidas o vencimientos.</p>
+        <div class="d-flex gap-2"><button class="btn btn-outline-primary">Configurar correos</button><button class="btn btn-outline-success">Configurar WhatsApp</button></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Scripts: Bootstrap + minimal JS para navegación entre secciones -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Navegación: mostrar sección vinculada al sidebar
+    document.querySelectorAll('.sidebar .nav-link').forEach(link=>{
+      link.addEventListener('click', (e)=>{
+        e.preventDefault();
+        document.querySelectorAll('.sidebar .nav-link').forEach(x=>x.classList.remove('active'));
+        link.classList.add('active');
+
+        const target = link.getAttribute('data-target');
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        const el = document.getElementById(target);
+        if(el) el.classList.add('active');
+
+        window.scrollTo({top:0, behavior:'smooth'});
+      });
+    });
+
+    // Extra: keyboard shortcut (D) to go to Dashboard
+    document.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase() === 'd'){ document.querySelector('.sidebar .nav-link[data-target="dashboard"]').click(); } });
+
+    // Nota: este HTML es estático. Para que funcione como sistema completo necesitas conectar a backend (API/PHP/MySQL)
+  </script>
+</body>
+</html>

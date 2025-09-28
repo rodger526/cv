@@ -1,0 +1,1 @@
+print('-------calculadora-------\n 1. suma\n 2. resta\n 3. multiplicacion\n 4. division')
